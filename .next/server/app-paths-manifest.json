@@ -1,10 +1,7 @@
 {
-  "/api/notifications/create-for-class/route": "app/api/notifications/create-for-class/route.js",
-  "/login/page": "app/login/page.js",
-  "/page": "app/page.js",
-  "/dashboard/page": "app/dashboard/page.js",
   "/dashboard/student/notes/page": "app/dashboard/student/notes/page.js",
-  "/dashboard/student/page": "app/dashboard/student/page.js",
   "/dashboard/student/corrections/page": "app/dashboard/student/corrections/page.js",
+  "/dashboard/student/page": "app/dashboard/student/page.js",
+  "/dashboard/teacher/corrections/page": "app/dashboard/teacher/corrections/page.js",
   "/dashboard/teacher/notes/page": "app/dashboard/teacher/notes/page.js"
 }

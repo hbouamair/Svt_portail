@@ -4,30 +4,43 @@ import * as React from "react";
 import { Download, FileText } from "lucide-react";
 import { getCorrections, getClasses } from "@/lib/store";
 import { useAuth } from "@/contexts/auth-context";
+import { useClasses, useCorrections } from "@/lib/hooks-data";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { LoadingState } from "@/components/loading-state";
 
 export default function StudentCorrectionsPage() {
-  const { user } = useAuth();
-  const [corrections, setCorrections] = React.useState(() => getCorrections());
-  const classes = getClasses();
+  const { user, useSupabase } = useAuth();
+  const { data: classesFromDb, loading: classesLoading } = useClasses();
+  const { data: correctionsFromDb, loading: correctionsLoading } = useCorrections();
+
+  const [localCorrections, setLocalCorrections] = React.useState(() => getCorrections());
+  const localClasses = getClasses();
 
   React.useEffect(() => {
-    setCorrections(getCorrections());
-  }, []);
+    if (!useSupabase) setLocalCorrections(getCorrections());
+  }, [useSupabase]);
+
+  const classes = useSupabase ? classesFromDb : localClasses;
+  const corrections = useSupabase ? correctionsFromDb : localCorrections;
 
   const myClassIds = React.useMemo(() => {
+    if (useSupabase) {
+      return classes.map((c) => c.id);
+    }
     return classes
       .filter((c) => c.studentIds.includes(user.id))
       .map((c) => c.id);
-  }, [classes, user.id]);
+  }, [useSupabase, classes, user.id]);
 
   const visible = React.useMemo(() => {
     return corrections.filter(
       (c) => !c.classId || myClassIds.includes(c.classId)
     );
   }, [corrections, myClassIds]);
+
+  const loading = useSupabase && (classesLoading || correctionsLoading);
 
   return (
     <div className="space-y-6 sm:space-y-8">
@@ -53,14 +66,18 @@ export default function StudentCorrectionsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="p-4 sm:p-6">
-          {visible.length === 0 ? (
+          {loading ? (
+            <LoadingState message="Chargement des corrections…" />
+          ) : visible.length === 0 ? (
             <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-[var(--border)] bg-[var(--muted)]/10 py-12 sm:py-16">
               <FileText className="h-12 w-12 text-[var(--muted-foreground)]" />
               <p className="mt-4 font-medium text-[var(--foreground)]">
                 Aucune correction disponible
               </p>
               <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-                Les corrections apparaîtront ici lorsqu'elles seront déposées par votre enseignant.
+                {useSupabase && corrections.length > 0 && myClassIds.length === 0
+                  ? "Vos classes n’ont pas été chargées. Vérifiez que vous êtes bien inscrit dans une classe (voir l’enseignant) et réessayez."
+                  : "Les corrections apparaîtront ici lorsqu'elles seront déposées par votre enseignant."}
               </p>
             </div>
           ) : (
