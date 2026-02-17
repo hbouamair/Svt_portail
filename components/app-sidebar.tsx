@@ -13,7 +13,6 @@ import {
   Leaf,
   ChevronLeft,
   ChevronRight,
-  LogOut,
   GraduationCap,
   Shield,
 } from "lucide-react";
@@ -59,7 +58,7 @@ function getNavLinks(role: Role) {
 
 export function AppSidebar() {
   const pathname = usePathname();
-  const { role, setRole, user, logout } = useAuth();
+  const { role } = useAuth();
   const { mobileOpen, setMobileOpen, collapsed, setCollapsed } = useSidebar();
 
   const links = getNavLinks(role);
@@ -154,42 +153,6 @@ export function AppSidebar() {
             );
           })}
         </nav>
-
-        {/* Role switcher + user */}
-        <div className="border-t border-[var(--sidebar-border)] p-3">
-          <div className={cn("space-y-2", collapsed && "flex flex-col items-center")}>
-            <p className={cn("text-xs text-[var(--muted-foreground)]", collapsed && "hidden")}>
-              Connecté en tant que
-            </p>
-            <select
-              value={role}
-              onChange={(e) => setRole(e.target.value as Role)}
-              className={cn(
-                "w-full rounded-lg border border-[var(--border)] bg-[var(--muted)] px-3 py-2 text-sm text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]",
-                collapsed && "w-10 px-1 py-1 text-center"
-              )}
-              title="Changer de rôle"
-            >
-              <option value="student">Élève</option>
-              <option value="teacher">Enseignant</option>
-              <option value="admin">Admin</option>
-            </select>
-            {!collapsed && (
-              <p className="truncate text-xs text-[var(--muted-foreground)]">
-                {user.name}
-              </p>
-            )}
-            <Button
-              variant="ghost"
-              size="sm"
-              className={cn("w-full justify-start gap-2 text-[var(--muted-foreground)]", collapsed && "w-10 justify-center px-0")}
-              onClick={() => logout()}
-            >
-              <LogOut className="h-4 w-4" />
-              {!collapsed && <span>Déconnexion</span>}
-            </Button>
-          </div>
-        </div>
       </aside>
     </>
   );
