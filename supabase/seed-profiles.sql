@@ -1,6 +1,6 @@
 -- =============================================================================
 -- Connexion à l'app (si les users ont été créés avec npm run seed) :
---   Enseignant : abdelmajid.bouamair@svt.local  /  SvtNotes2025!
+--   Enseignant : abdelmajid.bouamair@gmail.com  /  SvtNotes2025!
 --   Élèves    : hamza.bouamair@svt.local, abdelkbir.bouamair@svt.local  /  SvtNotes2025!
 -- =============================================================================
 --
@@ -31,6 +31,6 @@ ON CONFLICT (id) DO UPDATE SET
 -- =============================================================================
 -- 3) Mettre les bons noms et rôles pour nos 3 comptes
 -- =============================================================================
-UPDATE public.profiles SET name = 'Abdelmajid Bouamair', role = 'teacher' WHERE email = 'abdelmajid.bouamair@svt.local';
+UPDATE public.profiles SET name = 'Abdelmajid Bouamair', role = 'teacher' WHERE email = 'abdelmajid.bouamair@gmail.com';
 UPDATE public.profiles SET name = 'Hamza Bouamair', role = 'student' WHERE email = 'hamza.bouamair@svt.local';
 UPDATE public.profiles SET name = 'Abdelkbir Bouamair', role = 'student' WHERE email = 'abdelkbir.bouamair@svt.local';

@@ -16,7 +16,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const { collapsed } = useSidebar();
-  const { isLoggedIn, user, useSupabase } = useAuth();
+  const { isLoggedIn, user, useSupabase, userProfileLoaded } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -24,12 +24,13 @@ export default function DashboardLayout({
     if (!isLoggedIn) router.replace("/login");
   }, [isLoggedIn, router]);
 
+  // Rediriger vers change-password seulement quand on est sûr (profil chargé) que l’élève doit changer son mot de passe
   useEffect(() => {
     if (!isLoggedIn || !useSupabase) return;
-    if (user.role === "student" && user.mustChangePassword && pathname !== CHANGE_PASSWORD_PATH) {
-      router.replace(CHANGE_PASSWORD_PATH);
-    }
-  }, [isLoggedIn, useSupabase, user.role, user.mustChangePassword, pathname, router]);
+    if (user.role !== "student" || pathname === CHANGE_PASSWORD_PATH) return;
+    if (!userProfileLoaded) return;
+    if (user.mustChangePassword) router.replace(CHANGE_PASSWORD_PATH);
+  }, [isLoggedIn, useSupabase, user.role, user.mustChangePassword, userProfileLoaded, pathname, router]);
 
   if (!isLoggedIn) {
     return (

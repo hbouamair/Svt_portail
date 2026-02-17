@@ -1,8 +1,10 @@
 {
-  "/_not-found/page": "app/_not-found/page.js",
+  "/api/notifications/create-for-class/route": "app/api/notifications/create-for-class/route.js",
   "/login/page": "app/login/page.js",
+  "/page": "app/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/dashboard/student/notes/page": "app/dashboard/student/notes/page.js",
   "/dashboard/student/page": "app/dashboard/student/page.js",
-  "/dashboard/student/change-password/page": "app/dashboard/student/change-password/page.js",
   "/dashboard/student/corrections/page": "app/dashboard/student/corrections/page.js",
-  "/dashboard/teacher/page": "app/dashboard/teacher/page.js"
+  "/dashboard/teacher/notes/page": "app/dashboard/teacher/notes/page.js"
 }

@@ -146,7 +146,8 @@ export default function TeacherNotesPage() {
       setSavedMessage(true);
       setTimeout(() => setSavedMessage(false), 2500);
       toast.success("Les notes ont bien été enregistrées.");
-      if (selectedClass && user?.id) {
+      if (selectedClass && user?.id && entries.length > 0) {
+        const savedExamNames = [...new Set(entries.map((e) => e.examName))];
         try {
           await fetch("/api/notifications/create-for-class", {
             method: "POST",
@@ -154,7 +155,7 @@ export default function TeacherNotesPage() {
             body: JSON.stringify({
               classId: selectedClassId,
               className: selectedClass.name,
-              examNames,
+              examNames: savedExamNames,
               userId: user.id,
             }),
           });

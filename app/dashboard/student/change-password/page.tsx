@@ -37,7 +37,10 @@ export default function StudentChangePasswordPage() {
     }
     setPending(true);
     try {
-      const { error: updateError } = await supabase.auth.updateUser({ password });
+      const { error: updateError } = await supabase.auth.updateUser({
+        password,
+        data: { must_change_password: false },
+      });
       if (updateError) throw new Error(updateError.message);
       const { error: profileErr } = await supabase.from("profiles").update({ must_change_password: false }).eq("id", user.id);
       if (profileErr && !profileErr.message?.includes("must_change_password") && !profileErr.message?.includes("does not exist")) {

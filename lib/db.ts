@@ -217,13 +217,14 @@ export async function dbMarkAllNotificationsRead(db: Db, userId: string): Promis
   if (error) throw new Error(error.message);
 }
 
-/** Créer une notification pour chaque élève de la classe (appelé côté serveur avec service_role). */
+/** Créer une notification par élève et par examen (une par note disponible, pas un message global). */
 export async function dbCreateNotificationsForClass(
   db: Db,
   classId: string,
   className: string,
   examNames: string[]
 ): Promise<void> {
+  if (examNames.length === 0) return;
   const { data: links, error: e1 } = await db
     .from("class_students")
     .select("user_id")
@@ -231,10 +232,16 @@ export async function dbCreateNotificationsForClass(
   if (e1) throw new Error(e1.message);
   const userIds = (links ?? []).map((r) => r.user_id);
   if (userIds.length === 0) return;
-  const controleLabel = examNames.length > 0 ? examNames.join(", ") : "les évaluations";
-  const title = "Nouvelles notes disponibles";
-  const message = `Les notes du ${controleLabel} pour la classe ${className} sont disponibles dans votre espace.`;
-  const rows = userIds.map((user_id) => ({ user_id, title, message }));
+  const rows: { user_id: string; title: string; message: string }[] = [];
+  for (const user_id of userIds) {
+    for (const examName of examNames) {
+      rows.push({
+        user_id,
+        title: "Note disponible",
+        message: `Votre note pour ${examName} (classe ${className}) est disponible.`,
+      });
+    }
+  }
   const { error: e2 } = await db.from("notifications").insert(rows);
   if (e2) throw new Error(e2.message);
 }

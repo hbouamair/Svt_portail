@@ -12,8 +12,11 @@ import {
   Bar,
   ReferenceLine,
 } from "recharts";
-import { getGradesForStudent } from "@/lib/store";
+import { getGradesForStudent, type GradeEntry } from "@/lib/store";
+import { dbGetGradesForStudent } from "@/lib/db";
+import { getSupabaseClientOrNull } from "@/lib/supabase/client";
 import { useAuth } from "@/contexts/auth-context";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
@@ -32,12 +35,50 @@ function noteBg(note: number): string {
 const MIN_NOTES_FOR_AVERAGE = 3;
 
 export default function StudentNotesPage() {
-  const { user } = useAuth();
-  const [grades, setGrades] = React.useState(() => getGradesForStudent(user.id));
+  const { user, useSupabase } = useAuth();
+  const supabase = getSupabaseClientOrNull();
+  const [grades, setGrades] = React.useState<GradeEntry[]>(() =>
+    useSupabase ? [] : getGradesForStudent(user.id)
+  );
+  const [loading, setLoading] = React.useState(useSupabase);
+  const [fetchError, setFetchError] = React.useState<string | null>(null);
+
+  const fetchGrades = React.useCallback(async () => {
+    if (!user.id && !supabase) return;
+    if (!useSupabase || !supabase) {
+      setGrades(getGradesForStudent(user.id));
+      return;
+    }
+    setFetchError(null);
+    setLoading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const userId = session?.user?.id ?? user.id;
+      if (!userId) {
+        setLoading(false);
+        return;
+      }
+      const list = await dbGetGradesForStudent(supabase, userId);
+      setGrades(list);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Erreur lors du chargement des notes.";
+      setFetchError(msg);
+      setGrades([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [user.id, useSupabase, supabase]);
 
   React.useEffect(() => {
-    setGrades(getGradesForStudent(user.id));
-  }, [user.id]);
+    fetchGrades();
+  }, [fetchGrades]);
+
+  React.useEffect(() => {
+    if (!useSupabase || !supabase) return;
+    const onFocus = () => fetchGrades();
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
+  }, [useSupabase, supabase, fetchGrades]);
 
   const chartData = React.useMemo(() => {
     return grades.map((g) => ({
@@ -71,6 +112,19 @@ export default function StudentNotesPage() {
           Vue d’ensemble et évolution de vos notes.
         </p>
       </div>
+
+      {fetchError && (
+        <Card className="border-red-500/50 bg-red-500/10">
+          <CardContent className="flex flex-col gap-2 py-4">
+            <p className="text-sm text-red-600 dark:text-red-400">
+              Impossible de charger les notes. {fetchError}
+            </p>
+            <Button variant="outline" size="sm" className="w-fit" onClick={() => fetchGrades()}>
+              Réessayer
+            </Button>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Bloc résumé — moyenne affichée seulement à partir de 3 notes */}
       {grades.length > 0 && (
@@ -363,7 +417,15 @@ export default function StudentNotesPage() {
         </CardContent>
       </Card>
 
-      {grades.length === 0 && (
+      {loading && (
+        <Card className="border-[var(--border)] bg-[var(--card)]">
+          <CardContent className="flex flex-col items-center justify-center py-16">
+            <p className="text-[var(--muted-foreground)]">Chargement des notes…</p>
+          </CardContent>
+        </Card>
+      )}
+
+      {!loading && grades.length === 0 && (
         <Card className="border-dashed border-[var(--border)] bg-[var(--muted)]/10">
           <CardContent className="flex flex-col items-center justify-center py-16">
             <FileText className="h-14 w-14 text-[var(--muted-foreground)]" />

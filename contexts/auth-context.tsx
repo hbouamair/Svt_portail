@@ -18,6 +18,7 @@ interface AuthContextValue {
   user: User;
   role: Role;
   isLoggedIn: boolean;
+  userProfileLoaded: boolean;
   setRole: (role: Role) => void;
   login: (userId: string) => void;
   logout: () => void;
@@ -158,12 +159,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
   const role: Role = user?.role ?? "student";
   const isLoggedIn = !!currentUserId && mounted;
+  const userProfileLoaded = !useSupabase || supabaseUser?.id === currentUserId;
 
   const value: AuthContextValue = React.useMemo(
     () => ({
       user,
       role,
       isLoggedIn,
+      userProfileLoaded,
       setRole,
       login,
       logout,
@@ -171,7 +174,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       refetchProfiles,
       useSupabase,
     }),
-    [user, role, isLoggedIn, setRole, login, logout, allUsers, refetchProfiles, useSupabase]
+    [user, role, isLoggedIn, userProfileLoaded, setRole, login, logout, allUsers, refetchProfiles, useSupabase]
   );
 
   return (

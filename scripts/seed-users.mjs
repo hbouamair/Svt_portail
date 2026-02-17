@@ -50,7 +50,7 @@ const supabase = createClient(url, serviceKey, { auth: { autoRefreshToken: false
 const DEFAULT_PASSWORD = "SvtNotes2025!";
 
 const users = [
-  { email: "abdelmajid.bouamair@svt.local", name: "Abdelmajid Bouamair", role: "teacher" },
+  { email: "abdelmajid.bouamair@gmail.com", name: "Abdelmajid Bouamair", role: "teacher" },
   { email: "hamza.bouamair@svt.local", name: "Hamza Bouamair", role: "student" },
   { email: "abdelkbir.bouamair@svt.local", name: "Abdelkbir Bouamair", role: "student" },
 ];
