@@ -32,6 +32,16 @@ function noteBg(note: number): string {
   return "bg-red-500/15 border-red-500/40";
 }
 
+/** Mention française selon la note (/ 20) */
+function getMention(note: number): string {
+  if (note >= 16) return "Très bien";
+  if (note >= 14) return "Bien";
+  if (note >= 12) return "Assez bien";
+  if (note >= 10) return "Passable";
+  if (note >= 8) return "Insuffisant";
+  return "Échec";
+}
+
 const MIN_NOTES_FOR_AVERAGE = 3;
 
 export default function StudentNotesPage() {
@@ -158,6 +168,11 @@ export default function StudentNotesPage() {
                     / 20
                   </span>
                 </p>
+                {average !== null && (
+                  <p className={cn("mt-1 text-sm font-medium", noteColor(average))}>
+                    {getMention(average)}
+                  </p>
+                )}
                 <p className="mt-1 text-xs text-[var(--muted-foreground)]">
                   {grades.length} note{grades.length > 1 ? "s" : ""}
                 </p>
@@ -195,6 +210,9 @@ export default function StudentNotesPage() {
               <p className="text-3xl font-bold text-emerald-500 tabular-nums">
                 {bestNote !== null ? bestNote.toFixed(1) : "—"}
               </p>
+              {bestNote !== null && (
+                <p className="mt-1 text-sm font-medium text-emerald-600">{getMention(bestNote)}</p>
+              )}
               <p className="mt-1 text-xs text-[var(--muted-foreground)]">/ 20</p>
             </CardContent>
           </Card>
@@ -215,6 +233,11 @@ export default function StudentNotesPage() {
               >
                 {worstNote !== null ? worstNote.toFixed(1) : "—"}
               </p>
+              {worstNote !== null && (
+                <p className={cn("mt-1 text-sm font-medium", noteColor(worstNote))}>
+                  {getMention(worstNote)}
+                </p>
+              )}
               <p className="mt-1 text-xs text-[var(--muted-foreground)]">/ 20</p>
             </CardContent>
           </Card>
@@ -303,6 +326,9 @@ export default function StudentNotesPage() {
                     <th className="px-4 py-3 text-right text-sm font-semibold text-[var(--foreground)]">
                       Note
                     </th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-[var(--foreground)]">
+                      Mention
+                    </th>
                     <th className="px-4 py-3 text-right text-sm font-semibold text-[var(--muted-foreground)]">
                       Date
                     </th>
@@ -325,6 +351,9 @@ export default function StudentNotesPage() {
                         >
                           {g.note.toFixed(1)} / 20
                         </span>
+                      </td>
+                      <td className={cn("px-4 py-3 text-sm font-medium", noteColor(g.note))}>
+                        {getMention(g.note)}
                       </td>
                       <td className="px-4 py-3 text-right text-sm text-[var(--muted-foreground)]">
                         {new Date(g.date).toLocaleDateString("fr-FR")}
